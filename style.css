@@ -1,0 +1,86 @@
+:root { 
+    --green: #10b981; 
+    --gold: #D4AF37; 
+    --midnight: #051923; 
+    --card-glass: rgba(30, 41, 59, 0.7); 
+}
+
+body { 
+    background: radial-gradient(circle at top, #062c30, #000); 
+    font-family: 'Inter', sans-serif; 
+    margin: 0; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    height: 100vh; 
+    overflow: hidden; 
+}
+
+.app-card { 
+    background: var(--midnight); 
+    width: 100%; 
+    max-width: 414px; 
+    height: 94vh; 
+    border-radius: 30px; 
+    position: relative; 
+    display: flex; 
+    flex-direction: column; 
+    overflow: hidden; 
+    border: 1px solid rgba(212, 175, 55, 0.2); 
+}
+
+.view { 
+    flex: 1; 
+    padding: 1.5rem; 
+    overflow-y: auto; 
+    padding-bottom: 110px; 
+    scrollbar-width: none; 
+}
+.view::-webkit-scrollbar { display: none; }
+
+/* FIX: Full Margin Front Image */
+.hero-full-width { width: 100%; height: 250px; overflow: hidden; margin: -1.5rem -1.5rem 20px -1.5rem; width: calc(100% + 3rem); }
+.hero-full-width img { width: 100%; height: 100%; object-fit: cover; border-bottom: 3px solid var(--gold); }
+
+.brand-header { text-align: center; margin: 15px 0; }
+.logo-circle { background: linear-gradient(135deg, var(--green), #064e3b); color: #fff; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; margin: 0 auto 10px; border: 2px solid var(--gold); }
+.gold-text-title { color: var(--gold); font-size: 1.8rem; font-weight: 900; letter-spacing: 1px; margin: 0; }
+.gold-text { color: var(--gold); font-weight: 800; text-transform: uppercase; }
+
+/* Auth Layout */
+.auth-links { display: flex; justify-content: space-between; margin-top: 15px; font-size: 0.75rem; color: #94a3b8; }
+.auth-links span { cursor: pointer; text-decoration: underline; }
+
+/* Dashboard UI */
+.clock-display { font-size: 2rem; font-weight: 900; color: var(--green); text-align: center; margin-bottom: 10px; }
+.mission-stats { background: rgba(16, 185, 129, 0.15); padding: 10px; border-radius: 50px; color: var(--green); font-weight: 800; text-align: center; font-size: 0.75rem; border: 1px solid rgba(16,185,129,0.3); }
+
+/* GRID FIX (Balanced 4x4) */
+.compact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.grid-item { width: 100%; aspect-ratio: 1/1; border-radius: 12px; border: 1px solid var(--gold); background: #000; object-fit: cover; }
+.video-box video { width: 100%; height: 100%; border-radius: 11px; object-fit: cover; }
+
+/* Typography */
+.section-label { color: #94a3b8; font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px; text-transform: uppercase; }
+.section-label-gold { color: var(--gold); font-size: 0.75rem; font-weight: 900; letter-spacing: 1.5px; margin: 15px 0 10px 0; text-transform: uppercase; }
+
+/* Partner Grid */
+.partner-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.partner-card { background: rgba(255,255,255,0.05); border: 1px solid #334155; padding: 12px; border-radius: 10px; text-align: center; font-size: 0.7rem; color: #cbd5e1; }
+
+/* Forms & Buttons */
+input, select { background: rgba(255,255,255,0.05); border: 1px solid #334155; color: white; padding: 14px; border-radius: 12px; width: 100%; margin-bottom: 10px; box-sizing: border-box; }
+.main-btn { background: linear-gradient(to right, var(--green), #059669); color: white; font-weight: 900; border: none; padding: 16px; border-radius: 12px; width: 100%; cursor: pointer; }
+.secondary-btn { background: transparent; color: var(--gold); border: 2px solid var(--gold); padding: 14px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 800; }
+.donate-btn { background: #ef4444; color: white; border: none; padding: 18px; border-radius: 50px; font-weight: 900; width: 100%; margin-top: 10px; }
+.ghost-btn { background: transparent; color: #94a3b8; border: none; font-size: 0.8rem; margin-top: 10px; width: 100%; cursor: pointer; }
+
+/* Contact Aligner */
+.contact-full-align { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.glass-info-card { background: var(--card-glass); backdrop-filter: blur(10px); padding: 30px; border-radius: 25px; border: 1px solid rgba(212, 175, 55, 0.3); width: 100%; text-align: center; }
+.email-display { color: var(--green); font-size: 1rem; font-weight: 800; margin: 15px 0 25px 0; }
+
+/* Navigation */
+.nav-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 85px; background: rgba(0,0,0,0.8); backdrop-filter: blur(15px); display: flex; justify-content: space-around; align-items: center; border-top: 2px solid var(--gold); z-index: 100; }
+.nav-bar button { background: none; border: none; color: #64748b; font-size: 0.6rem; font-weight: 800; cursor: pointer; }
+li { background: rgba(255,255,255,0.05); margin-bottom: 10px; padding: 15px; border-radius: 15px; border-left: 5px solid var(--green); display: flex; list-style: none; color: white; font-size: 0.85rem; }
