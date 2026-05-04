@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GloryWheels Foundation | Ultra Master</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="app-card">
+        <div id="loginView" class="view">
+            <div class="hero-full-width">
+                <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=1200" alt="GloryWheels Impact">
+            </div>
+            
+            <div class="brand-header">
+                <div class="logo-circle">GW</div>
+                <h2 class="gold-text-title">GloryWheels</h2>
+            </div>
+            
+            <div class="account-portal">
+                <h4 class="section-label center">SECURE ACCESS</h4>
+                <input type="text" placeholder="Username or Email">
+                <input type="password" placeholder="Password">
+                <button class="main-btn">SIGN IN</button>
+                
+                <div class="auth-links">
+                    <span onclick="alert('Password reset link sent to your email.')">Forgot Password?</span>
+                    <span onclick="switchView('signUpView')">Create Account</span>
+                </div>
+
+                <div class="action-zone" style="margin-top: 20px;">
+                    <button class="secondary-btn" onclick="switchView('missionView')">PROCEED AS GUEST</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="signUpView" class="view" style="display:none;">
+            <div class="brand-header">
+                <h2 class="gold-text">Join the Movement</h2>
+            </div>
+            <div class="input-group">
+                <input type="text" placeholder="Full Name">
+                <input type="email" placeholder="Email Address">
+                <input type="password" placeholder="New Password">
+                <button class="main-btn">REGISTER ACCOUNT</button>
+                <button class="ghost-btn" onclick="switchView('loginView')">BACK TO LOGIN</button>
+            </div>
+        </div>
+
+        <div id="missionView" class="view" style="display:none;">
+            <div class="brand-header">
+                <div id="liveClock" class="clock-display">00:00:00</div>
+                <div class="mission-stats">
+                    <span id="criticalCount">0 Critical</span> • <span id="totalCount">0 Impacted</span>
+                </div>
+            </div>
+
+            <div class="mission-form">
+                <h4 class="section-label">DESCRIBE MISSION NEED</h4>
+                <input type="text" id="taskInput" placeholder="Briefly describe the situation...">
+                <div class="selector-row">
+                    <select id="categorySelect">
+                        <option value="Tuition">🎓 Tuition Support</option>
+                        <option value="Relief">🍲 Poor Relief</option>
+                        <option value="Mentor">🤝 Mentoring</option>
+                    </select>
+                    <select id="prioritySelect">
+                        <option value="Ongoing">Ongoing</option>
+                        <option value="Critical">🚨 Critical</option>
+                    </select>
+                </div>
+                <button class="main-btn" onclick="addTask()">SUBMIT ONLINE REQUEST</button>
+            </div>
+            <ul id="taskList"></ul>
+        </div>
+
+        <div id="aboutView" class="view" style="display:none;">
+            <div class="brand-header">
+                <h2 class="gold-text">Our Impact</h2>
+            </div>
+
+            <h4 class="section-label-gold">VIDEO JOURNALS</h4>
+            <div class="compact-grid">
+                <div class="grid-item video-box"><video controls><source src="mentoring.png.mp4"></video></div>
+                <div class="grid-item video-box"><video controls><source src="pupil2.png.mp4"></video></div>
+                <div class="grid-item video-box"><video controls><source src="pupil3.png.mp4"></video></div>
+                <div class="grid-item video-box"><video controls><source src="Healthcare.png.mp4"></video></div>
+            </div>
+
+            <h4 class="section-label-gold">FIELD PHOTOGRAPHY</h4>
+            <div class="compact-grid">
+                <img src="https://images.unsplash.com/photo-1509062522246-375597792777?q=80&w=400" class="grid-item" alt="Impact 1">
+                <img src="https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=400" class="grid-item" alt="Impact 2">
+                <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=400" class="grid-item" alt="Impact 3">
+                <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=400" class="grid-item" alt="Impact 4">
+            </div>
+
+            <div class="statement-card">
+                <h3>Our Story</h3>
+                <p>GloryWheels is a beacon of hope, born from the necessity to bridge educational gaps and provide immediate relief to those in hardship.</p>
+            </div>
+
+            <h4 class="section-label-gold">GLOBAL PARTNERS</h4>
+            <div class="partner-grid">
+                <div class="partner-card">Global Relief</div>
+                <div class="partner-card">EduGrowth</div>
+                <div class="partner-card">Hope Alliance</div>
+                <div class="partner-card">Unity Care</div>
+            </div>
+
+            <button class="donate-btn" onclick="switchView('loginView')">❤️ DONATE NOW</button>
+        </div>
+
+        <div id="contactView" class="view" style="display:none;">
+            <div class="contact-full-align">
+                <div class="logo-circle">GW</div>
+                <h2 class="gold-text">Contact HQ</h2>
+                <div class="glass-info-card">
+                    <p class="section-label-gold">OFFICIAL ENQUIRIES</p>
+                    <h3 class="email-display">bettyglobal224@gmail.com</h3>
+                    <button class="main-btn" onclick="window.location.href='mailto:bettyglobal224@gmail.com'">SEND EMAIL NOW</button>
+                </div>
+            </div>
+        </div>
+
+        <nav class="nav-bar">
+            <button onclick="switchView('missionView')">🏠<br>Hub</button>
+            <button onclick="switchView('aboutView')">🌍<br>Impact</button>
+            <button onclick="switchView('contactView')">📩<br>Email</button>
+            <button onclick="switchView('loginView')">👤<br>Account</button>
+        </nav>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
