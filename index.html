@@ -5,32 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>GloryWheels Foundation | Ultra Master</title>
 
-   <!-- FOR ANDROID/CHROME ICON RECOVERY -->
+    <!-- FOR ANDROID/CHROME ICON RECOVERY -->
     <meta name="mobile-web-app-capable" content="yes">
+    <!-- Using v=9 across all of them to force the phone to see the new Gold Logo -->
     <link rel="icon" sizes="192x192" href="gw-logo.png?v=9">
     <link rel="icon" sizes="512x512" href="gw-logo.png?v=9">
     
-   <!-- 1. Firebase SDKs -->
+    <!-- 1. Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-    <!-- 2. PWA & Icons (Force Refresh with gw-logo.png) -->
+    <!-- 2. PWA & Icons (Ensuring name matches image_d81e54.png) -->
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="gw-logo.png">
-    <link rel="apple-touch-icon" href="gw-logo.png">
+    <link rel="icon" type="image/png" href="gw-logo.png?v=9">
+    <link rel="apple-touch-icon" href="gw-logo.png?v=9">
     
     <!-- 3. Mobile UI Settings -->
-    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="GW Admin">
     <meta name="theme-color" content="#051923">
 
-    <!-- 3. Styles -->
+    <!-- 4. Styles -->
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 
-    <!-- 4. Your Script: Must come AFTER Firebase SDKs -->
+    <!-- 5. Your Script: Must come AFTER Firebase SDKs -->
     <script defer src="script.js"></script>
 </head>
 <body>
