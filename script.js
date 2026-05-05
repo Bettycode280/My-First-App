@@ -1,4 +1,3 @@
-
 // 1. FIREBASE CONFIGURATION
 const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
@@ -14,27 +13,28 @@ if (!firebase.apps.length) {
 }
 const db = firebase.firestore();
 
-// 2. REAL-TIME LISTENER
+// 2. REAL-TIME LISTENER & ALERT SYSTEM
 function displayMissions() {
     const list = document.getElementById('mission-list');
     
+    // This addresses the Connectivity Hypothesis by staying 'awake' for updates
     db.collection("missionRequests").onSnapshot((querySnapshot) => {
         
-        // 1. THE ALERT TRIGGER
-        // This checks if the change to the database was a "NEW" item
+        // --- EMERGENCY ALERT LOGIC ---
+        // This triggers even if you are looking at the Archive tab
         querySnapshot.docChanges().forEach((change) => {
             if (change.type === "added") {
-                // This ignores the very first load so your phone doesn't 
-                // scream at you for old missions when you log in.
+                // Ignore old missions already in the database when you first log in
                 if (!querySnapshot.metadata.hasPendingWrites) {
-                    alert("🚨 NEW MISSION RECEIVED!"); // This is your instant alert
+                    alert("🚨 NEW MISSION RECEIVED!"); 
                     console.log("New mission detected:", change.doc.data().name);
                 }
             }
         });
 
-        // 2. THE UI DISPLAY
+        // --- UI DISPLAY LOGIC ---
         const activeTab = document.getElementById('tab-active');
+        // Check if we are currently viewing the Archive
         const isArchiveSelected = activeTab && activeTab.classList.contains('btn-inactive-style');
 
         if (!isArchiveSelected) {
@@ -49,6 +49,8 @@ function displayMissions() {
                 const data = doc.data();
                 const card = document.createElement('div');
                 card.className = "mission-card";
+                
+                // Full data display including Contact info
                 card.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <div>
@@ -57,7 +59,7 @@ function displayMissions() {
                             <p style="margin:5px 0; font-size:0.9em;"><strong>Contact:</strong> ${data.contact || 'N/A'}</p>
                         </div>
                     </div>
-                    <button class="delete-btn" onclick="deleteMission('${doc.id}')" style="width:100%; margin-top:15px; background:#ff4b2b; color:white; border:none; padding:10px; border-radius:5px; font-weight:bold;">
+                    <button class="delete-btn" onclick="deleteMission('${doc.id}')" style="width:100%; margin-top:15px; background:#ff4b2b; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">
                         Complete & Archive
                     </button>
                 `;
@@ -65,24 +67,11 @@ function displayMissions() {
             });
         }
     }, (error) => {
-        console.error("Alert System Error:", error);
+        console.error("Critical Connection Error:", error);
     });
 }
 
-            // Trigger an alert if a brand new mission arrives
-            querySnapshot.docChanges().forEach((change) => {
-                if (change.type === "added" && !querySnapshot.metadata.hasPendingWrites) {
-                    console.log("New Mission Alert!");
-                    // Optional: alert("New Mission Received!");
-                }
-            });
-        }
-    }, (error) => {
-        console.error("Database connection lost:", error);
-    });
-}
-
-// 3. ARCHIVE LOGIC
+// 3. ARCHIVE LOGIC (Data Retention Hypothesis)
 function deleteMission(id) {
     if (confirm("Move this mission to the permanent Archives?")) {
         const missionRef = db.collection("missionRequests").doc(id);
@@ -90,17 +79,22 @@ function deleteMission(id) {
         missionRef.get().then((doc) => {
             if (doc.exists) {
                 const missionData = doc.data();
-                // This addresses the Data Retention Hypothesis
+                // Add a completion date for your records
                 missionData.completedAt = firebase.firestore.FieldValue.serverTimestamp();
 
+                // Step A: Store in Archive
                 db.collection("completedMissions").add(missionData)
                     .then(() => {
+                        // Step B: Only delete if Step A was successful
                         return missionRef.delete();
                     })
                     .then(() => {
                         alert("Mission stored in Archive.");
                     })
-                    .catch((error) => alert("Error: " + error));
+                    .catch((error) => {
+                        console.error("Archive Failed:", error);
+                        alert("Error saving to archive. Mission remains active.");
+                    });
             }
         });
     }
