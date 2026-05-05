@@ -1,147 +1,152 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Admin Mission Control</title>
+    <title>GW Mission Control</title>
     
+    <!-- ICON RECOVERY: Points to your logo.png in the main folder -->
     <link rel="apple-touch-icon" href="logo.png">
-    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="shortcut icon" type="image/png" href="logo.png">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-
     <link rel="stylesheet" href="style.css">
     
     <style>
-/* SCROLL FIX: This allows the phone to scroll through long lists */
+        /* SCROLL & VIEWPORT FIX */
         html, body {
             height: 100%;
-            overflow-y: auto; /* Enables vertical scrolling */
+            margin: 0;
+            padding: 0;
+            background: #051923;
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow-x: hidden;
+            overflow-y: auto; 
             -webkit-overflow-scrolling: touch;
         }
+
         /* Security Overlay */
         #login-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #051923; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; z-index: 1000;
-        }
-        .login-box { 
-            background: #1a3a4a; padding: 30px; border-radius: 15px; 
-            text-align: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); width: 85%; max-width: 350px;
-        }
-        .login-box input { 
-            padding: 12px; border-radius: 5px; border: none; width: 100%; 
-            margin-bottom: 15px; font-size: 16px; box-sizing: border-box;
+            align-items: center; justify-content: center; z-index: 2000;
         }
 
-        /* Admin UI Layout */
-        .admin-container { padding: 20px; max-width: 800px; margin: auto; display: none; }
-        
-        /* Toggle Buttons */
-        .toggle-container { display: flex; gap: 10px; margin: 20px 0; }
-        .toggle-btn {
-            flex: 1; padding: 12px; border-radius: 8px; border: none;
-            font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 16px;
+        /* Layout Container */
+        .admin-container { 
+            padding: 20px; 
+            display: none; 
+            /* This ensures you can scroll past the last card */
+            padding-bottom: 120px; 
+            min-height: 100vh;
+            box-sizing: border-box;
         }
+        
+        /* Sticky Toggle Bar */
+        .toggle-container { 
+            position: sticky; 
+            top: 0; 
+            z-index: 100;
+            display: flex; 
+            gap: 10px; 
+            background: #051923; 
+            padding: 15px 0;
+            margin-bottom: 20px;
+        }
+
+        .toggle-btn {
+            flex: 1; padding: 14px; border-radius: 10px; border: none;
+            font-weight: bold; font-size: 16px; cursor: pointer;
+        }
+        
         .btn-active-style { background: #00d4ff; color: #051923; }
         .btn-inactive-style { background: #1a3a4a; color: white; border: 1px solid #00d4ff; }
 
-        /* Mission Cards */
+        /* Card Styling */
         .mission-card { 
-            background: #1a3a4a; border-left: 10px solid #00d4ff; 
-            margin-bottom: 15px; padding: 15px; border-radius: 12px; 
+            background: #1a3a4a; 
+            border-left: 8px solid #00d4ff; 
+            margin-bottom: 15px; 
+            padding: 18px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
-        .priority-high { border-left-color: #ff4b2b; }
-        .delete-btn { background: #ff4b2b; color: white; border: none; padding: 10px 15px; border-radius: 5px; margin-top: 10px; }
     </style>
 </head>
-<body style="background: #051923; color: white; font-family: 'Inter', sans-serif; margin: 0;">
+<body>
 
     <div id="login-overlay">
-        <div class="login-box">
-            <img src="logo.png" alt="Logo" style="width: 80px; margin-bottom: 20px; border-radius: 50%;">
-            <h2 style="margin-bottom: 20px;">Command Center</h2>
-            <input type="password" id="pass-input" placeholder="Enter Command Code">
-            <button class="toggle-btn btn-active-style" onclick="checkPass()" style="width: 100%;">Access Missions</button>
-            <p id="error-msg" style="color: #ff4b2b; display: none; margin-top: 15px;">Access Denied</p>
+        <div style="text-align:center; width: 85%; max-width: 320px;">
+            <img src="logo.png" style="width:100px; border-radius:50%; margin-bottom:20px; border: 3px solid #00d4ff;">
+            <h2 style="margin-bottom:20px;">Command Center</h2>
+            <input type="password" id="pass-input" placeholder="Access Code" 
+                   style="padding:15px; width:100%; border-radius:8px; border:none; margin-bottom:15px; font-size:18px;">
+            <button class="toggle-btn btn-active-style" onclick="checkPass()" style="width:100%;">Enter Mission Control</button>
         </div>
     </div>
 
     <div class="admin-container" id="admin-ui">
-        <h1>🛠️ Mission Control</h1>
+        <h1 style="margin-top: 10px;">🛠️ Mission Control</h1>
         
         <div class="toggle-container">
             <button class="toggle-btn btn-active-style" id="tab-active" onclick="showActive()">Active</button>
             <button class="toggle-btn btn-inactive-style" id="tab-archive" onclick="showArchive()">Archive</button>
         </div>
 
-        <hr style="opacity: 0.2; margin-bottom: 20px;">
-        
         <div id="mission-list">
-            <p>Scanning database...</p>
+            <p style="text-align:center; opacity:0.5;">Establishing secure link...</p>
         </div>
     </div>
 
     <script src="script.js"></script>
     <script>
-        // Password Protection Logic
         function checkPass() {
             const code = document.getElementById('pass-input').value;
-            // CHANGE '1234' TO YOUR SECRET CODE
+            // CHANGE THIS TO YOUR SECRET CODE
             if (code === '1234') { 
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('admin-ui').style.display = 'block';
-                // Initialize the list display
                 if (typeof displayMissions === "function") {
-                    displayMissions(); 
+                    displayMissions();
                 }
             } else {
-                document.getElementById('error-msg').style.display = 'block';
+                alert("Unauthorized Access");
             }
         }
 
-        // UI Toggle - Switch to Active
         function showActive() {
             document.getElementById('tab-active').className = 'toggle-btn btn-active-style';
             document.getElementById('tab-archive').className = 'toggle-btn btn-inactive-style';
-            if (typeof displayMissions === "function") {
-                displayMissions(); // Refresh active list
-            }
+            if (typeof displayMissions === "function") { displayMissions(); }
         }
 
-        // UI Toggle - Switch to Archive
         function showArchive() {
             document.getElementById('tab-archive').className = 'toggle-btn btn-active-style';
             document.getElementById('tab-active').className = 'toggle-btn btn-inactive-style';
-            
-            const list = document.getElementById('mission-list');
-            list.innerHTML = "<p>Loading Archives...</p>";
-
-            // Fetch from the 'completedMissions' folder
-            db.collection("completedMissions").orderBy("completedAt", "desc").get().then((querySnapshot) => {
-                list.innerHTML = ""; 
-                if (querySnapshot.empty) {
-                    list.innerHTML = "<p>History is currently empty.</p>";
-                    return;
-                }
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    const card = document.createElement('div');
-                    card.className = 'mission-card';
-                    card.style.borderLeftColor = '#888'; // Grey border for records
-                    card.innerHTML = `
-                        <h3>${data.name} (RECORD)</h3>
-                        <p><strong>Mission:</strong> ${data.mission}</p>
-                        <p style="font-size: 0.8em; opacity: 0.6;">Closed: ${data.completedAt ? data.completedAt.toDate().toLocaleString() : 'Recently'}</p>
-                    `;
-                    list.appendChild(card);
+            if (typeof showArchiveData === "function") { 
+                showArchiveData(); 
+            } else {
+                // Fallback if the function is still in script.js
+                const list = document.getElementById('mission-list');
+                list.innerHTML = "<p>Opening Archives...</p>";
+                db.collection("completedMissions").orderBy("completedAt", "desc").get().then((snapshot) => {
+                    list.innerHTML = "";
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        const card = document.createElement('div');
+                        card.className = 'mission-card';
+                        card.style.borderLeftColor = '#555';
+                        card.innerHTML = `<h3>${data.name} (ARCHIVED)</h3><p>${data.mission}</p>`;
+                        list.appendChild(card);
+                    });
                 });
-            }).catch((error) => {
-                console.error("Archive Error: ", error);
-            });
+            }
         }
     </script>
 </body>
