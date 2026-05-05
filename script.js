@@ -105,11 +105,33 @@ function displayMissions() {
 }
 
 function deleteMission(id) {
-    if (confirm("Mark this mission as complete and remove it?")) {
-        db.collection("missionRequests").doc(id).delete().then(() => {
-            console.log("Mission removed!");
+    if (confirm("Mark this mission as complete and move to Archives?")) {
+        const missionRef = db.collection("missionRequests").doc(id);
+
+        // 1. Get the data from the active mission
+        missionRef.get().then((doc) => {
+            if (doc.exists) {
+                const missionData = doc.data();
+                
+                // Add a "Completed At" timestamp so you know when it happened
+                missionData.completedAt = firebase.firestore.FieldValue.serverTimestamp();
+
+                // 2. Save it into the Archive folder (completedMissions)
+                db.collection("completedMissions").add(missionData)
+                    .then(() => {
+                        console.log("Mission safely archived!");
+                        // 3. Now it is safe to delete from the active list
+                        return missionRef.delete();
+                    })
+                    .then(() => {
+                        alert("Mission Accomplished and Archived!");
+                    })
+                    .catch((error) => {
+                        console.error("Error archiving mission: ", error);
+                    });
+            }
         }).catch((error) => {
-            console.error("Error removing mission: ", error);
+            console.error("Error finding mission: ", error);
         });
     }
 }
