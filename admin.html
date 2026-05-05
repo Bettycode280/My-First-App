@@ -1,14 +1,14 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>GW Mission Control</title>
- <!-- ICON RECOVERY: Pointing to the new filename we created -->
-<link rel="apple-touch-icon" href="gw-logo.png?v=4">
-<link rel="icon" type="image/png" href="gw-logo.png?v=4">
-<link rel="shortcut icon" type="image/png" href="gw-logo.png?v=4">
+
+    <!-- ICON RECOVERY -->
+    <link rel="apple-touch-icon" href="gw-logo.png?v=9">
+    <link rel="icon" type="image/png" href="gw-logo.png?v=9">
+    <link rel="shortcut icon" type="image/png" href="gw-logo.png?v=9">
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -20,15 +20,9 @@
     <style>
         /* SCROLL & VIEWPORT FIX */
         html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            background: #051923;
-            color: white;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow-x: hidden;
-            overflow-y: auto; 
-            -webkit-overflow-scrolling: touch;
+            height: 100%; margin: 0; padding: 0; background: #051923;
+            color: white; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow-x: hidden; overflow-y: auto; -webkit-overflow-scrolling: touch;
         }
 
         /* Security Overlay */
@@ -40,24 +34,15 @@
 
         /* Layout Container */
         .admin-container { 
-            padding: 20px; 
-            display: none; 
-            /* This ensures you can scroll past the last card */
-            padding-bottom: 120px; 
-            min-height: 100vh;
-            box-sizing: border-box;
+            padding: 20px; display: none; padding-bottom: 120px; 
+            min-height: 100vh; box-sizing: border-box;
         }
         
         /* Sticky Toggle Bar */
         .toggle-container { 
-            position: sticky; 
-            top: 0; 
-            z-index: 100;
-            display: flex; 
-            gap: 10px; 
-            background: #051923; 
-            padding: 15px 0;
-            margin-bottom: 20px;
+            position: sticky; top: 0; z-index: 100;
+            display: flex; gap: 10px; background: #051923; 
+            padding: 15px 0; margin-bottom: 20px;
         }
 
         .toggle-btn {
@@ -70,11 +55,8 @@
 
         /* Card Styling */
         .mission-card { 
-            background: #1a3a4a; 
-            border-left: 8px solid #00d4ff; 
-            margin-bottom: 15px; 
-            padding: 18px; 
-            border-radius: 12px; 
+            background: #1a3a4a; border-left: 8px solid #00d4ff; 
+            margin-bottom: 15px; padding: 18px; border-radius: 12px; 
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
     </style>
@@ -83,10 +65,11 @@
 
     <div id="login-overlay">
         <div style="text-align:center; width: 85%; max-width: 320px;">
-            <img src="logo.png" style="width:100px; border-radius:50%; margin-bottom:20px; border: 3px solid #00d4ff;">
+            <!-- FIXED: Changed src from logo.png to gw-logo.png -->
+            <img src="gw-logo.png?v=9" style="width:100px; height:100px; border-radius:50%; margin-bottom:20px; border: 3px solid #00d4ff; object-fit: cover;">
             <h2 style="margin-bottom:20px;">Command Center</h2>
             <input type="password" id="pass-input" placeholder="Access Code" 
-                   style="padding:15px; width:100%; border-radius:8px; border:none; margin-bottom:15px; font-size:18px;">
+                   style="padding:15px; width:100%; border-radius:8px; border:none; margin-bottom:15px; font-size:18px; color: #000;">
             <button class="toggle-btn btn-active-style" onclick="checkPass()" style="width:100%;">Enter Mission Control</button>
         </div>
     </div>
@@ -108,7 +91,6 @@
     <script>
         function checkPass() {
             const code = document.getElementById('pass-input').value;
-            // CHANGE THIS TO YOUR SECRET CODE
             if (code === '1234') { 
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('admin-ui').style.display = 'block';
@@ -129,24 +111,25 @@
         function showArchive() {
             document.getElementById('tab-archive').className = 'toggle-btn btn-active-style';
             document.getElementById('tab-active').className = 'toggle-btn btn-inactive-style';
-            if (typeof showArchiveData === "function") { 
-                showArchiveData(); 
-            } else {
-                // Fallback if the function is still in script.js
-                const list = document.getElementById('mission-list');
-                list.innerHTML = "<p>Opening Archives...</p>";
-                db.collection("completedMissions").orderBy("completedAt", "desc").get().then((snapshot) => {
-                    list.innerHTML = "";
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        const card = document.createElement('div');
-                        card.className = 'mission-card';
-                        card.style.borderLeftColor = '#555';
-                        card.innerHTML = `<h3>${data.name} (ARCHIVED)</h3><p>${data.mission}</p>`;
-                        list.appendChild(card);
-                    });
+            
+            const list = document.getElementById('mission-list');
+            list.innerHTML = "<p style='text-align:center;'>Opening Archives...</p>";
+            
+            // Logic integrated from your script.js fallback
+            db.collection("completedMissions").orderBy("completedAt", "desc").get().then((snapshot) => {
+                list.innerHTML = "";
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const card = document.createElement('div');
+                    card.className = 'mission-card';
+                    card.style.borderLeftColor = '#555';
+                    card.innerHTML = `<h3>${data.name || 'Anonymous'} (ARCHIVED)</h3><p>${data.mission || 'No description'}</p>`;
+                    list.appendChild(card);
                 });
-            }
+            }).catch(err => {
+                console.error("Archive fetch error:", err);
+                list.innerHTML = "<p style='color:red;'>Failed to load archives.</p>";
+            });
         }
     </script>
 </body>
