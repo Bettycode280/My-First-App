@@ -46,28 +46,37 @@ function displayMissions() {
 }
 
 // 3. The Archive Logic (The "Move" instead of "Delete")
-function deleteMission(id) {
-    if (confirm("Mark this mission as complete and move to Archives?")) {
-        const missionRef = db.collection("missionRequests").doc(id);
+function displayMissions() {
+    const list = document.getElementById('mission-list');
+    
+    // This watches the "missionRequests" folder for ANY new messages
+    db.collection("missionRequests").onSnapshot((querySnapshot) => {
+        
+        // We only update the screen if the "Active" tab is currently selected
+        const activeTab = document.getElementById('tab-active');
+        if (activeTab && activeTab.classList.contains('btn-active-style')) {
+            list.innerHTML = ""; 
 
-        // Get the data first
-        missionRef.get().then((doc) => {
-            if (doc.exists) {
-                const missionData = doc.data();
-                // Add a completion timestamp
-                missionData.completedAt = firebase.firestore.FieldValue.serverTimestamp();
-
-                // Save to Archive
-                db.collection("completedMissions").add(missionData)
-                    .then(() => {
-                        // Once archived, delete from active
-                        return missionRef.delete();
-                    })
-                    .then(() => {
-                        alert("Mission safely archived!");
-                    })
-                    .catch((error) => console.error("Archive error:", error));
+            if (querySnapshot.empty) {
+                list.innerHTML = "<p style='text-align:center; opacity:0.5;'>No active missions. Standing by...</p>";
+                return;
             }
-        });
-    }
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                const card = document.createElement('div');
+                card.className = "mission-card";
+                // Show which hypothesis this addresses
+                card.innerHTML = `
+                    <h3>${data.name}</h3>
+                    <p><strong>Mission:</strong> ${data.mission}</p>
+                    <p><strong>Contact:</strong> ${data.contact || 'None'}</p>
+                    <button class="delete-btn" onclick="deleteMission('${doc.id}')">Complete & Archive</button>
+                `;
+                list.appendChild(card);
+            });
+        }
+    }, (error) => {
+        console.error("Listener failed: ", error);
+    });
 }
