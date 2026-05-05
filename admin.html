@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Mission Control</title>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-container { padding: 20px; max-width: 800px; margin: auto; }
+        .mission-card { 
+            background: #1a3a4a; 
+            border-left: 10px solid #00d4ff; 
+            margin-bottom: 20px; 
+            padding: 20px; 
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .priority-high { border-left-color: #ff4b2b; }
+        .priority-medium { border-left-color: #ffb400; }
+        .priority-low { border-left-color: #00ff88; }
+        .delete-btn { 
+            background: #ff4b2b; color: white; border: none; 
+            padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-top: 10px;
+        }
+    </style>
+</head>
+<body style="background: #051923; color: white; font-family: 'Inter', sans-serif;">
+
+    <div class="admin-container">
+        <h1>🛠️ Mission Control</h1>
+        <p>Newest requests appear at the top automatically.</p>
+        <hr style="opacity: 0.2; margin-bottom: 30px;">
+        <div id="mission-list">
+            <p>Scanning database for missions...</p>
+        </div>
+    </div>
+
+    <!-- This refers to your existing script.js for the Firebase config -->
+    <script src="script.js"></script>
+    <script>
+        // Start the display function as soon as the page loads
+        window.onload = function() {
+            if (typeof displayMissions === "function") {
+                displayMissions();
+            } else {
+                document.getElementById('mission-list').innerHTML = "Error: displayMissions function not found in script.js";
+            }
+        };
+    </script>
+</body>
+</html>
