@@ -70,3 +70,46 @@ window.onload = () => {
     console.log("GloryWheels is connected to Firebase!");
     switchView('homeView'); 
 };
+// --- ADMIN VIEW FUNCTIONS ---
+
+function displayMissions() {
+    const missionList = document.getElementById('mission-list');
+    
+    // Listen to Firebase for ANY changes in real-time
+    db.collection("missionRequests").orderBy("timestamp", "desc").onSnapshot((querySnapshot) => {
+        missionList.innerHTML = ""; // Clear current list
+        
+        if (querySnapshot.empty) {
+            missionList.innerHTML = "<p>No active missions found.</p>";
+            return;
+        }
+
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const id = doc.id;
+
+            missionList.innerHTML += `
+                <div class="mission-card priority-${data.priority ? data.priority.toLowerCase() : 'low'}">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <span style="font-weight: bold; color: #00d4ff;">PRIORITY: ${data.priority || 'N/A'}</span>
+                            <p style="font-size: 1.2rem; margin: 10px 0;">${data.description}</p>
+                            <small style="opacity: 0.6;">Received: ${data.timestamp ? data.timestamp.toDate().toLocaleString() : 'Recent'}</small>
+                        </div>
+                        <button class="delete-btn" onclick="deleteMission('${id}')">Complete</button>
+                    </div>
+                </div>
+            `;
+        });
+    });
+}
+
+function deleteMission(id) {
+    if (confirm("Mark this mission as complete and remove it?")) {
+        db.collection("missionRequests").doc(id).delete().then(() => {
+            console.log("Mission removed!");
+        }).catch((error) => {
+            console.error("Error removing mission: ", error);
+        });
+    }
+}
