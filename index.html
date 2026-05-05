@@ -3,39 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>GloryWheels Foundation | Ultra Master</title>
+    <title>GloryWheels Foundation | Hub</title>
 
-    <!-- FOR ANDROID/CHROME ICON RECOVERY -->
+    <!-- ICON RECOVERY -->
     <meta name="mobile-web-app-capable" content="yes">
-    <!-- Using v=9 across all of them to force the phone to see the new Gold Logo -->
-    <link rel="icon" sizes="192x192" href="gw-logo.png?v=9">
-    <link rel="icon" sizes="512x512" href="gw-logo.png?v=9">
-    
-    <!-- 1. Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-
-    <!-- 2. PWA & Icons (Ensuring name matches image_d81e54.png) -->
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="gw-logo.png?v=9">
+    <link rel="icon" type="image/png" sizes="192x192" href="gw-logo.png?v=9">
+    <link rel="icon" type="image/png" sizes="512x512" href="gw-logo.png?v=9">
     <link rel="apple-touch-icon" href="gw-logo.png?v=9">
     
-    <!-- 3. Mobile UI Settings -->
+    <!-- MOBILE UI SETTINGS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="GW Admin">
+    <meta name="apple-mobile-web-app-title" content="GloryWheels">
     <meta name="theme-color" content="#051923">
 
-    <!-- 4. Styles -->
+    <!-- EXTERNAL ASSETS -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 
-    <!-- 5. Your Script: Must come AFTER Firebase SDKs -->
     <script defer src="script.js"></script>
 </head>
 <body>
 
     <div class="app-card">
+        
+        <!-- 1. LOGIN / ACCOUNT VIEW -->
         <div id="loginView" class="view">
             <div class="hero-full-width">
                 <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=1200" alt="GloryWheels Impact">
@@ -43,8 +38,8 @@
             
             <div class="brand-header">
                 <div class="logo-circle">
-    <img src="gw-logo.png?v=9" style="width:100%; border-radius:50%;">
-</div>
+                    <img src="gw-logo.png?v=9" style="width:100%; border-radius:50%;" alt="GW Gold Logo">
+                </div>
                 <h2 class="gold-text-title">GloryWheels</h2>
             </div>
             
@@ -65,6 +60,7 @@
             </div>
         </div>
 
+        <!-- 2. SIGN UP VIEW -->
         <div id="signUpView" class="view" style="display:none;">
             <div class="brand-header">
                 <h2 class="gold-text">Join the Movement</h2>
@@ -78,6 +74,7 @@
             </div>
         </div>
 
+        <!-- 3. MISSION HUB VIEW -->
         <div id="missionView" class="view" style="display:none;">
             <div class="brand-header">
                 <div id="liveClock" class="clock-display">00:00:00</div>
@@ -94,6 +91,7 @@
                         <option value="Tuition">🎓 Tuition Support</option>
                         <option value="Relief">🍲 Poor Relief</option>
                         <option value="Mentor">🤝 Mentoring</option>
+                        <option value="Healthcare">🏥 Healthcare</option>
                     </select>
                     <select id="prioritySelect">
                         <option value="Ongoing">Ongoing</option>
@@ -105,6 +103,7 @@
             <ul id="taskList"></ul>
         </div>
 
+        <!-- 4. IMPACT / ABOUT VIEW -->
         <div id="aboutView" class="view" style="display:none;">
             <div class="brand-header">
                 <h2 class="gold-text">Our Impact</h2>
@@ -120,10 +119,10 @@
 
             <h4 class="section-label-gold">FIELD PHOTOGRAPHY</h4>
             <div class="compact-grid">
-                <img src="https://images.unsplash.com/photo-1509062522246-375597792777?q=80&w=400" class="grid-item" alt="Impact 1">
-                <img src="https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=400" class="grid-item" alt="Impact 2">
-                <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=400" class="grid-item" alt="Impact 3">
-                <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=400" class="grid-item" alt="Impact 4">
+                <img src="https://images.unsplash.com/photo-1509062522246-375597792777?q=80&w=400" class="grid-item">
+                <img src="https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=400" class="grid-item">
+                <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=400" class="grid-item">
+                <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=400" class="grid-item">
             </div>
 
             <div class="statement-card">
@@ -142,9 +141,12 @@
             <button class="donate-btn" onclick="switchView('loginView')">❤️ DONATE NOW</button>
         </div>
 
+        <!-- 5. CONTACT VIEW -->
         <div id="contactView" class="view" style="display:none;">
             <div class="contact-full-align">
-                <div class="logo-circle">GW</div>
+                <div class="logo-circle">
+                     <img src="gw-logo.png?v=9" style="width:100%; border-radius:50%;">
+                </div>
                 <h2 class="gold-text">Contact HQ</h2>
                 <div class="glass-info-card">
                     <p class="section-label-gold">OFFICIAL ENQUIRIES</p>
@@ -154,6 +156,7 @@
             </div>
         </div>
 
+        <!-- PERMANENT NAVIGATION BAR -->
         <nav class="nav-bar">
             <button onclick="switchView('missionView')">🏠<br>Hub</button>
             <button onclick="switchView('aboutView')">🌍<br>Impact</button>
@@ -162,6 +165,5 @@
         </nav>
     </div>
 
-    <script src="script.js"></script>
 </body>
 </html>
