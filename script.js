@@ -18,11 +18,22 @@ const db = firebase.firestore();
 function displayMissions() {
     const list = document.getElementById('mission-list');
     
-    // This addresses the Connectivity Hypothesis by staying 'awake' for new missions
     db.collection("missionRequests").onSnapshot((querySnapshot) => {
         
-        // BUG FIX: We check if we are on the Active tab. 
-        // If the button isn't found, we show missions anyway so you don't lose data!
+        // 1. THE ALERT TRIGGER
+        // This checks if the change to the database was a "NEW" item
+        querySnapshot.docChanges().forEach((change) => {
+            if (change.type === "added") {
+                // This ignores the very first load so your phone doesn't 
+                // scream at you for old missions when you log in.
+                if (!querySnapshot.metadata.hasPendingWrites) {
+                    alert("🚨 NEW MISSION RECEIVED!"); // This is your instant alert
+                    console.log("New mission detected:", change.doc.data().name);
+                }
+            }
+        });
+
+        // 2. THE UI DISPLAY
         const activeTab = document.getElementById('tab-active');
         const isArchiveSelected = activeTab && activeTab.classList.contains('btn-inactive-style');
 
@@ -38,8 +49,6 @@ function displayMissions() {
                 const data = doc.data();
                 const card = document.createElement('div');
                 card.className = "mission-card";
-                
-                // Detailed card view
                 card.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <div>
@@ -54,6 +63,11 @@ function displayMissions() {
                 `;
                 list.appendChild(card);
             });
+        }
+    }, (error) => {
+        console.error("Alert System Error:", error);
+    });
+}
 
             // Trigger an alert if a brand new mission arrives
             querySnapshot.docChanges().forEach((change) => {
