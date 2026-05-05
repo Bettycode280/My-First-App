@@ -1,5 +1,5 @@
 
-// 1. YOUR FIREBASE CONFIG (KEEP YOUR ACTUAL KEYS HERE)
+// 1. FIREBASE CONFIGURATION
 const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
@@ -14,16 +14,19 @@ if (!firebase.apps.length) {
 }
 const db = firebase.firestore();
 
-// 2. THE REAL-TIME LISTENER (Addresses the Connectivity Hypothesis)
+// 2. REAL-TIME LISTENER
 function displayMissions() {
     const list = document.getElementById('mission-list');
     
-    // We use .onSnapshot so it PINGS the second a new request hits the database
+    // This addresses the Connectivity Hypothesis by staying 'awake' for new missions
     db.collection("missionRequests").onSnapshot((querySnapshot) => {
         
-        // Ensure we only draw this if the "Active" tab is selected
+        // BUG FIX: We check if we are on the Active tab. 
+        // If the button isn't found, we show missions anyway so you don't lose data!
         const activeTab = document.getElementById('tab-active');
-        if (activeTab && activeTab.classList.contains('btn-active-style')) {
+        const isArchiveSelected = activeTab && activeTab.classList.contains('btn-inactive-style');
+
+        if (!isArchiveSelected) {
             list.innerHTML = ""; 
 
             if (querySnapshot.empty) {
@@ -36,7 +39,7 @@ function displayMissions() {
                 const card = document.createElement('div');
                 card.className = "mission-card";
                 
-                // Add back the full details and the Archive button
+                // Detailed card view
                 card.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <div>
@@ -45,11 +48,19 @@ function displayMissions() {
                             <p style="margin:5px 0; font-size:0.9em;"><strong>Contact:</strong> ${data.contact || 'N/A'}</p>
                         </div>
                     </div>
-                    <button class="delete-btn" onclick="deleteMission('${doc.id}')" style="width:100%; margin-top:15px;">
+                    <button class="delete-btn" onclick="deleteMission('${doc.id}')" style="width:100%; margin-top:15px; background:#ff4b2b; color:white; border:none; padding:10px; border-radius:5px; font-weight:bold;">
                         Complete & Archive
                     </button>
                 `;
                 list.appendChild(card);
+            });
+
+            // Trigger an alert if a brand new mission arrives
+            querySnapshot.docChanges().forEach((change) => {
+                if (change.type === "added" && !querySnapshot.metadata.hasPendingWrites) {
+                    console.log("New Mission Alert!");
+                    // Optional: alert("New Mission Received!");
+                }
             });
         }
     }, (error) => {
@@ -57,7 +68,7 @@ function displayMissions() {
     });
 }
 
-// 3. THE ARCHIVE LOGIC (Addresses the Data Retention Hypothesis)
+// 3. ARCHIVE LOGIC
 function deleteMission(id) {
     if (confirm("Move this mission to the permanent Archives?")) {
         const missionRef = db.collection("missionRequests").doc(id);
@@ -65,12 +76,11 @@ function deleteMission(id) {
         missionRef.get().then((doc) => {
             if (doc.exists) {
                 const missionData = doc.data();
+                // This addresses the Data Retention Hypothesis
                 missionData.completedAt = firebase.firestore.FieldValue.serverTimestamp();
 
-                // Step A: Copy to Archive
                 db.collection("completedMissions").add(missionData)
                     .then(() => {
-                        // Step B: Delete from Active only after Step A succeeds
                         return missionRef.delete();
                     })
                     .then(() => {
