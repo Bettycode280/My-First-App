@@ -10,25 +10,20 @@
     <link rel="icon" sizes="192x192" href="logo.png?v=9">
     <link rel="icon" sizes="512x512" href="logo.png?v=9">
     
-    <!-- FOR IPHONE ICON RECOVERY -->
-    <link rel="apple-touch-icon" href="logo.png?v=9">
-    
-    <!-- FALLBACK -->
-    <link rel="shortcut icon" href="logo.png?v=9">
-    <!-- Mobile UI Settings -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#051923">
-    <!-- 1. Firebase SDKs: The connection lines -->
+   <!-- 1. Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <!-- 2. PWA & Icons -->
-    <link rel="icon" type="image/png" href="logo.png">
-    <link rel="apple-touch-icon" href="logo.png">
+
+    <!-- 2. PWA & Icons (Force Refresh with gw-logo.png) -->
     <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="gw-logo.png">
+    <link rel="apple-touch-icon" href="gw-logo.png">
+    
+    <!-- 3. Mobile UI Settings -->
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="GloryWheels">
+    <meta name="apple-mobile-web-app-title" content="GW Admin">
     <meta name="theme-color" content="#051923">
 
     <!-- 3. Styles -->
