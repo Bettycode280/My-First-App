@@ -16,6 +16,12 @@
     <link rel="stylesheet" href="style.css">
     
     <style>
+/* SCROLL FIX: This allows the phone to scroll through long lists */
+        html, body {
+            height: 100%;
+            overflow-y: auto; /* Enables vertical scrolling */
+            -webkit-overflow-scrolling: touch;
+        }
         /* Security Overlay */
         #login-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
