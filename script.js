@@ -139,4 +139,28 @@ window.onload = () => {
         displayMissions(); 
     }
 };
+// 6. SECURITY & UI RESET
+function checkPass() {
+    const code = document.getElementById('pass-input').value;
+    
+    if (code === '1234') { 
+        // Hide the login screen
+        document.getElementById('login-overlay').style.display = 'none';
+        
+        // Show the Admin UI
+        const adminUI = document.getElementById('admin-ui');
+        adminUI.style.display = 'block';
+        
+        // --- THE FIX: Snap to top to remove blank space ---
+        window.scrollTo(0, 0); 
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
 
+        // Start loading the missions
+        if (typeof displayMissions === "function") {
+            displayMissions();
+        }
+    } else {
+        alert("Unauthorized Access");
+    }
+}
