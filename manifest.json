@@ -1,4 +1,3 @@
-
 {
   "name": "GW Mission Control",
   "short_name": "GW Admin",
@@ -8,25 +7,25 @@
   "theme_color": "#051923",
   "icons": [
     {
-      "src": "gw-logo.png",
+      "src": "gw-logo.png?v=11",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "gw-logo.png",
+      "src": "gw-logo.png?v=11",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "gw-logo.png",
+      "src": "gw-logo.png?v=11",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "gw-logo.png",
+      "src": "gw-logo.png?v=11",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
