@@ -45,29 +45,27 @@ function displayMissions() {
                 return;
             }
 
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                const id = doc.id;
+           querySnapshot.forEach((doc) => {
+    const data = doc.data();
+    const id = doc.id;
+    const priorityClass = data.priority ? data.priority.toLowerCase() : 'low';
 
-                // Priority color logic
-                const priorityClass = data.priority ? data.priority.toLowerCase() : 'low';
-
-                missionList.innerHTML += `
-                    <div class="mission-card priority-${priorityClass}">
-                        <div style="display: flex; justify-content: space-between; align-items: start;">
-                            <div style="width: 80%;">
-                                <span style="font-weight: bold; color: #00d4ff;">PRIORITY: ${data.priority || 'N/A'}</span>
-                                <p style="font-size: 1.2rem; margin: 10px 0; color: white;">${data.description}</p>
-                                <small style="opacity: 0.6;">Received: ${data.timestamp ? data.timestamp.toDate().toLocaleString() : 'Recent'}</small>
-                            </div>
-                            <button class="delete-btn" onclick="deleteMission('${id}')" 
-                                    style="background:#ff4b2b; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer; font-weight:bold;">
-                                Complete
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
+    missionList.innerHTML += `
+        <div class="mission-card priority-${priorityClass}">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+                <div style="width: 80%;">
+                    <span style="font-weight: bold; color: #00d4ff;">PRIORITY: ${data.priority || 'N/A'}</span>
+                    <p style="font-size: 1.2rem; margin: 10px 0; color: white;">${data.description}</p>
+                    <small style="opacity: 0.6;">Received: ${data.timestamp ? data.timestamp.toDate().toLocaleString() : 'Recent'}</small>
+                </div>
+                <button class="delete-btn" onclick="deleteMission('${id}')" 
+                        style="background:#ff4b2b; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer; font-weight:bold;">
+                    Complete
+                </button>
+            </div>
+        </div>
+    `;
+}); 
         }
         isInitialLoad = false;
     }, (error) => {
