@@ -5,15 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>GW Mission Control</title>
 
-    <!-- ICON RECOVERY: Updated to v=11 to force gold logo -->
     <meta name="mobile-web-app-capable" content="yes">
     <link rel="manifest" href="manifest.json?v=11">
     <link rel="apple-touch-icon" href="gw-logo.png?v=11">
     <link rel="icon" type="image/png" href="gw-logo.png?v=11">
-    <link rel="shortcut icon" type="image/png" href="gw-logo.png?v=11">
     
-   <!-- MOBILE UI SETTINGS -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#051923">
 
@@ -21,7 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <link rel="stylesheet" href="style.css">
     
-  <style>
+    <style>
         /* SCROLL & VIEWPORT FIX */
         html, body {
             height: 100%; 
@@ -30,18 +26,13 @@
             background: #051923;
             color: white; 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow-x: hidden; 
-            overflow-y: auto; 
-            -webkit-overflow-scrolling: touch;
+            overflow: hidden; /* Prevent body scroll to keep header stagnant */
         }
 
         /* Security Overlay */
         #login-overlay {
             position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: #051923; 
             display: flex; 
             flex-direction: column;
@@ -50,29 +41,25 @@
             z-index: 2000;
         }
 
-        /* Layout Container - FIXED TOP PADDING */
+        /* Layout Container */
         .admin-container { 
-            /* This ensures it stays below the phone's status bar/clock */
-            padding-top: calc(40px + env(safe-area-inset-top)); 
+            padding-top: calc(20px + env(safe-area-inset-top)); 
             padding-left: 20px;
             padding-right: 20px;
-            padding-bottom: 120px; 
             display: none; 
-            min-height: 100vh; 
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
             box-sizing: border-box;
         }
         
-        /* Sticky Toggle Bar - ADJUSTED POSITION */
+        /* Sticky Toggle Bar */
         .toggle-container { 
-            position: sticky; 
-            /* Moves the toggle bar down slightly so it doesn't overlap the clock */
-            top: env(safe-area-inset-top); 
-            z-index: 100;
+            flex-shrink: 0; /* Keep bar from squishing */
             display: flex; 
             gap: 10px; 
             background: #051923; 
             padding: 15px 0; 
-            margin-bottom: 20px;
         }
 
         .toggle-btn {
@@ -83,10 +70,19 @@
             font-weight: bold; 
             font-size: 16px; 
             cursor: pointer;
+            transition: 0.2s;
         }
         
         .btn-active-style { background: #00d4ff; color: #051923; }
         .btn-inactive-style { background: #1a3a4a; color: white; border: 1px solid #00d4ff; }
+
+        /* The scrolling list area (The "Folder") */
+        #mission-list {
+            flex-grow: 1;
+            overflow-y: auto; 
+            padding-bottom: 40px;
+            -webkit-overflow-scrolling: touch;
+        }
 
         .mission-card { 
             background: #1a3a4a; 
@@ -102,7 +98,6 @@
 
     <div id="login-overlay">
         <div style="text-align:center; width: 85%; max-width: 320px;">
-            <!-- FIXED: Changed src from logo.png to gw-logo.png -->
             <img src="gw-logo.png?v=9" style="width:100px; height:100px; border-radius:50%; margin-bottom:20px; border: 3px solid #00d4ff; object-fit: cover;">
             <h2 style="margin-bottom:20px;">Command Center</h2>
             <input type="password" id="pass-input" placeholder="Access Code" 
@@ -111,63 +106,28 @@
         </div>
     </div>
 
-    <div class="admin-container" id="admin-ui">
-        <h1 style="margin-top: 10px;">🛠️ Mission Control</h1>
+    <div class="admin-container" id="admin-ui" style="display: none;">
+        <h1 style="margin: 0; padding-top: 10px; font-size: 1.8rem;">🛠️ Mission Control</h1>
         
         <div class="toggle-container">
-            <button class="toggle-btn btn-active-style" id="tab-active" onclick="showActive()">Active</button>
-            <button class="toggle-btn btn-inactive-style" id="tab-archive" onclick="showArchive()">Archive</button>
+            <button class="toggle-btn btn-active-style" id="tab-active" onclick="displayMissions()">Active</button>
+            <button class="toggle-btn btn-inactive-style" id="tab-archive" onclick="showArchiveData()">Archive</button>
         </div>
 
         <div id="mission-list">
-            <p style="text-align:center; opacity:0.5;">Establishing secure link...</p>
+            <p style="text-align:center; opacity:0.5;">Connecting to secure server...</p>
         </div>
     </div>
 
     <script src="script.js"></script>
+    
     <script>
-        function checkPass() {
-            const code = document.getElementById('pass-input').value;
-            if (code === '1234') { 
-            document.getElementById('login-overlay').style.display = 'none';
-    document.getElementById('admin-ui').style.display = 'block';
-
-    // THE FIX: Reset scroll position to top of page
-    window.scrollTo(0, 0); 
-    document.body.scrollTop = 0;
-    document.documentElement.scrollTop = 0;
-
-    if (typeof displayMissions === "function") {
-        displayMissions();
-    }
-  } else {
-    alert("Unauthorized Access");
-  }
-} 
-
-        function showArchive() {
-            document.getElementById('tab-archive').className = 'toggle-btn btn-active-style';
-            document.getElementById('tab-active').className = 'toggle-btn btn-inactive-style';
-            
-            const list = document.getElementById('mission-list');
-            list.innerHTML = "<p style='text-align:center;'>Opening Archives...</p>";
-            
-            // Logic integrated from your script.js fallback
-            db.collection("completedMissions").orderBy("completedAt", "desc").get().then((snapshot) => {
-                list.innerHTML = "";
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const card = document.createElement('div');
-                    card.className = 'mission-card';
-                    card.style.borderLeftColor = '#555';
-                    card.innerHTML = `<h3>${data.name || 'Anonymous'} (ARCHIVED)</h3><p>${data.mission || 'No description'}</p>`;
-                    list.appendChild(card);
-                });
-            }).catch(err => {
-                console.error("Archive fetch error:", err);
-                list.innerHTML = "<p style='color:red;'>Failed to load archives.</p>";
-            });
-        }
+        // Redirect checkPass to the one in script.js for consistency
+        const internalCheck = () => {
+            if(typeof checkPass === "function") {
+                checkPass();
+            }
+        };
     </script>
 </body>
 </html>
