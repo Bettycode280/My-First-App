@@ -1,4 +1,3 @@
-
 // 1. YOUR UNIQUE FIREBASE CONFIGURATION
 const firebaseConfig = {
   apiKey: "AIzaSyDhLq4p_W0ArYVXYHmOZbsuyyvLqWde6js",
@@ -16,17 +15,16 @@ if (!firebase.apps.length) {
 }
 const db = firebase.firestore();
 
-// Variable to manage the initial data pull so the alert doesn't fire for old missions
+// Variable to manage the initial data pull
 let isInitialLoad = true;
 
-// 2. MISSION CONTROL LISTENER (Real-time Alerts & Active Tab)
+// 2. MISSION CONTROL LISTENER (Active Tab)
 function displayMissions() {
     const missionList = document.getElementById('mission-list');
     
-    // Listen to Firebase for ANY changes in real-time
     db.collection("missionRequests").orderBy("timestamp", "desc").onSnapshot((querySnapshot) => {
         
-        // --- EMERGENCY ALERT LOGIC ---
+        // Alert logic
         if (!isInitialLoad) {
             querySnapshot.docChanges().forEach((change) => {
                 if (change.type === "added") {
@@ -36,7 +34,7 @@ function displayMissions() {
         }
 
         const activeTab = document.getElementById('tab-active');
-        // Only update the screen if the "Active" tab is currently selected
+        // Only update if "Active" tab is selected
         if (activeTab && activeTab.classList.contains('btn-active-style')) {
             missionList.innerHTML = ""; 
             
@@ -45,27 +43,27 @@ function displayMissions() {
                 return;
             }
 
-           querySnapshot.forEach((doc) => {
-    const data = doc.data();
-    const id = doc.id;
-    const priorityClass = data.priority ? data.priority.toLowerCase() : 'low';
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                const id = doc.id;
+                const priorityClass = data.priority ? data.priority.toLowerCase() : 'low';
 
-    missionList.innerHTML += `
-        <div class="mission-card priority-${priorityClass}">
-            <div style="display: flex; justify-content: space-between; align-items: start;">
-                <div style="width: 80%;">
-                    <span style="font-weight: bold; color: #00d4ff;">PRIORITY: ${data.priority || 'N/A'}</span>
-                    <p style="font-size: 1.2rem; margin: 10px 0; color: white;">${data.description}</p>
-                    <small style="opacity: 0.6;">Received: ${data.timestamp ? data.timestamp.toDate().toLocaleString() : 'Recent'}</small>
-                </div>
-                <button class="delete-btn" onclick="deleteMission('${id}')" 
-                        style="background:#ff4b2b; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer; font-weight:bold;">
-                    Complete
-                </button>
-            </div>
-        </div>
-    `;
-}); 
+                missionList.innerHTML += `
+                    <div class="mission-card priority-${priorityClass}">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div style="width: 80%;">
+                                <span style="font-weight: bold; color: #00d4ff;">PRIORITY: ${data.priority || 'N/A'}</span>
+                                <p style="font-size: 1.2rem; margin: 10px 0; color: white;">${data.description}</p>
+                                <small style="opacity: 0.6;">Received: ${data.timestamp ? data.timestamp.toDate().toLocaleString() : 'Recent'}</small>
+                            </div>
+                            <button class="delete-btn" onclick="deleteMission('${id}')" 
+                                    style="background:#ff4b2b; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer; font-weight:bold;">
+                                Complete
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }); 
         }
         isInitialLoad = false;
     }, (error) => {
@@ -88,8 +86,6 @@ function showArchiveData() {
 
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
-                
-                // This addresses the hypothesis of displaying the completion date
                 missionList.innerHTML += `
                     <div class="mission-card" style="border-left: 5px solid #555; background: #1a1a1a; margin-bottom: 15px; padding: 15px; border-radius: 8px;">
                         <h3 style="margin:0; color:#aaa;">${data.category || 'Mission'} (Completed)</h3>
@@ -106,34 +102,28 @@ function showArchiveData() {
             missionList.innerHTML = "<p style='text-align:center; color:red;'>Error loading records.</p>";
         });
 }
-}
 
-// 5. NAVIGATION & INITIALIZATION
+// 4. NAVIGATION & INITIALIZATION
 window.onload = () => { 
     console.log("GloryWheels Admin is Connected!");
-    // If we are on the admin page, start listening immediately
     if (document.getElementById('mission-list')) {
         displayMissions(); 
     }
 };
-// 6. SECURITY & UI RESET
+
+// 5. SECURITY & UI RESET
 function checkPass() {
     const code = document.getElementById('pass-input').value;
     
     if (code === '1234') { 
-        // Hide the login screen
         document.getElementById('login-overlay').style.display = 'none';
-        
-        // Show the Admin UI
         const adminUI = document.getElementById('admin-ui');
         adminUI.style.display = 'block';
         
-        // --- THE FIX: Snap to top to remove blank space ---
         window.scrollTo(0, 0); 
         document.body.scrollTop = 0;
         document.documentElement.scrollTop = 0;
 
-        // Start loading the missions
         if (typeof displayMissions === "function") {
             displayMissions();
         }
