@@ -1,4 +1,6 @@
-// 1. YOUR UNIQUE FIREBASE CONFIGURATION
+// ==========================================
+// 1. FIREBASE CONFIGURATION & INITIALIZATION
+// ==========================================
 const firebaseConfig = {
   apiKey: "AIzaSyDhLq4p_W0ArYVXYHmOZbsuyyvLqWde6js",
   authDomain: "glorywheels-507df.firebaseapp.com",
@@ -9,22 +11,31 @@ const firebaseConfig = {
   measurementId: "G-RJMCECXXZP"
 };
 
-// Initialize Firebase
+// Initialize Firebase App
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
-const db = firebase.firestore();
 
-// Variable to manage the initial data pull
+// Global Variables
+const db = firebase.firestore();
 let isInitialLoad = true;
 
-// 2. MISSION CONTROL LISTENER (Active Tab)
+// ==========================================
+// 2. ACTIVE MISSIONS (Real-Time Listener)
+// ==========================================
 function displayMissions() {
     const missionList = document.getElementById('mission-list');
-    
+    const activeTab = document.getElementById('tab-active');
+    const archiveTab = document.getElementById('tab-archive');
+
+    // UI State Management: Update Button Colors
+    if (activeTab) activeTab.classList.add('btn-active-style');
+    if (archiveTab) archiveTab.classList.remove('btn-active-style');
+
+    // Listen to Firebase for live updates
     db.collection("missionRequests").orderBy("timestamp", "desc").onSnapshot((querySnapshot) => {
         
-        // Alert logic
+        // Emergency Alert Logic (New Missions only)
         if (!isInitialLoad) {
             querySnapshot.docChanges().forEach((change) => {
                 if (change.type === "added") {
@@ -33,8 +44,7 @@ function displayMissions() {
             });
         }
 
-        const activeTab = document.getElementById('tab-active');
-        // Only update if "Active" tab is selected
+        // Only render if we are currently on the Active Tab
         if (activeTab && activeTab.classList.contains('btn-active-style')) {
             missionList.innerHTML = ""; 
             
@@ -48,16 +58,17 @@ function displayMissions() {
                 const id = doc.id;
                 const priorityClass = data.priority ? data.priority.toLowerCase() : 'low';
 
+                // Address hypothesis: Display Received Time
                 missionList.innerHTML += `
-                    <div class="mission-card priority-${priorityClass}">
+                    <div class="mission-card priority-${priorityClass}" style="margin-bottom: 15px; padding: 15px; border-radius: 10px; background: #1a1a1a;">
                         <div style="display: flex; justify-content: space-between; align-items: start;">
-                            <div style="width: 80%;">
+                            <div style="width: 75%;">
                                 <span style="font-weight: bold; color: #00d4ff;">PRIORITY: ${data.priority || 'N/A'}</span>
-                                <p style="font-size: 1.2rem; margin: 10px 0; color: white;">${data.description}</p>
-                                <small style="opacity: 0.6;">Received: ${data.timestamp ? data.timestamp.toDate().toLocaleString() : 'Recent'}</small>
+                                <p style="font-size: 1.15rem; margin: 10px 0; color: white;">${data.description}</p>
+                                <small style="opacity: 0.6; color: #aaa;">Received: ${data.timestamp ? data.timestamp.toDate().toLocaleString() : 'Just now'}</small>
                             </div>
-                            <button class="delete-btn" onclick="deleteMission('${id}')" 
-                                    style="background:#ff4b2b; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer; font-weight:bold;">
+                            <button class="complete-btn" onclick="deleteMission('${id}')" 
+                                    style="background:#ff4b2b; color:white; border:none; padding:10px 15px; border-radius:5px; cursor:pointer; font-weight:bold;">
                                 Complete
                             </button>
                         </div>
@@ -67,18 +78,28 @@ function displayMissions() {
         }
         isInitialLoad = false;
     }, (error) => {
-        console.error("Connection Error: ", error);
+        console.error("Firebase Sync Error: ", error);
     });
 }
 
-// 3. ARCHIVE DATA LOADER (For the Archive Tab)
+// ==========================================
+// 3. ARCHIVE DATA LOADER (Completed Missions)
+// ==========================================
 function showArchiveData() {
     const missionList = document.getElementById('mission-list');
+    const activeTab = document.getElementById('tab-active');
+    const archiveTab = document.getElementById('tab-archive');
+
+    // UI State Management: Update Button Colors
+    if (archiveTab) archiveTab.classList.add('btn-active-style');
+    if (activeTab) activeTab.classList.remove('btn-active-style');
+
     missionList.innerHTML = "<p style='text-align:center; padding:20px;'>Accessing Archives...</p>";
 
     db.collection("completedMissions").orderBy("completedAt", "desc").get()
         .then((querySnapshot) => {
             missionList.innerHTML = "";
+            
             if (querySnapshot.empty) {
                 missionList.innerHTML = "<p style='text-align:center; padding:20px; opacity:0.5;'>The Archive is empty.</p>";
                 return;
@@ -86,11 +107,13 @@ function showArchiveData() {
 
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
+                
+                // Address hypothesis: Display Completed Time
                 missionList.innerHTML += `
-                    <div class="mission-card" style="border-left: 5px solid #555; background: #1a1a1a; margin-bottom: 15px; padding: 15px; border-radius: 8px;">
-                        <h3 style="margin:0; color:#aaa;">${data.category || 'Mission'} (Completed)</h3>
+                    <div class="mission-card" style="border-left: 5px solid #555; background: #111; margin-bottom: 15px; padding: 15px; border-radius: 10px;">
+                        <h3 style="margin:0; color:#00d4ff; font-size: 1rem;">${data.category || 'Mission'} (Completed)</h3>
                         <p style="margin:10px 0; color: white; font-size: 1.1rem;">${data.description}</p>
-                        <p style="font-size:0.8rem; color:#888; margin: 0;">
+                        <p style="font-size:0.8rem; color:#666; margin: 0;">
                             Archived: ${data.completedAt ? data.completedAt.toDate().toLocaleString() : 'Date Unknown'}
                         </p>
                     </div>
@@ -98,36 +121,72 @@ function showArchiveData() {
             });
         })
         .catch((error) => {
-            console.error("Error loading archive: ", error);
-            missionList.innerHTML = "<p style='text-align:center; color:red;'>Error loading records.</p>";
+            console.error("Archive Error: ", error);
+            missionList.innerHTML = "<p style='color:red;'>Error loading data.</p>";
         });
 }
 
-// 4. NAVIGATION & INITIALIZATION
-window.onload = () => { 
-    console.log("GloryWheels Admin is Connected!");
-    if (document.getElementById('mission-list')) {
-        displayMissions(); 
-    }
-};
+// ==========================================
+// 4. MISSION COMPLETION LOGIC (Move to Archive)
+// ==========================================
+function deleteMission(missionId) {
+    if (!confirm("Mark this mission as accomplished?")) return;
 
-// 5. SECURITY & UI RESET
+    const missionRef = db.collection("missionRequests").doc(missionId);
+
+    missionRef.get().then((doc) => {
+        if (doc.exists) {
+            const missionData = doc.data();
+            
+            // Add to completedMissions
+            db.collection("completedMissions").add({
+                ...missionData,
+                completedAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                // Delete from active list
+                return missionRef.delete();
+            })
+            .then(() => {
+                alert("Mission Accomplished and Archived!");
+            });
+        }
+    }).catch((error) => {
+        console.error("Error archiving mission: ", error);
+    });
+}
+
+// ==========================================
+// 5. SECURITY & LOGIN UI
+// ==========================================
 function checkPass() {
     const code = document.getElementById('pass-input').value;
     
     if (code === '1234') { 
         document.getElementById('login-overlay').style.display = 'none';
-        const adminUI = document.getElementById('admin-ui');
-        adminUI.style.display = 'block';
+        document.getElementById('admin-ui').style.display = 'block';
         
+        // UI Stability: Force page to stay stagnant at top
         window.scrollTo(0, 0); 
-        document.body.scrollTop = 0;
-        document.documentElement.scrollTop = 0;
-
-        if (typeof displayMissions === "function") {
-            displayMissions();
-        }
+        
+        // Initialize List
+        displayMissions();
     } else {
         alert("Unauthorized Access");
     }
 }
+
+// ==========================================
+// 6. INITIALIZATION & SCROLL FIX
+// ==========================================
+window.onload = () => { 
+    console.log("GloryWheels Admin Protocol Active");
+    
+    const listContainer = document.getElementById('mission-list');
+    if (listContainer) {
+        // Fix: Make list scrollable while keeping Header stagnant
+        listContainer.style.height = "calc(100vh - 220px)";
+        listContainer.style.overflowY = "auto";
+        listContainer.style.paddingBottom = "50px";
+    }
+};
