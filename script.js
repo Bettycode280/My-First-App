@@ -88,45 +88,24 @@ function showArchiveData() {
 
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
+                
+                // This addresses the hypothesis of displaying the completion date
                 missionList.innerHTML += `
-                    <div class="mission-card" style="border-left-color: #555;">
+                    <div class="mission-card" style="border-left: 5px solid #555; background: #1a1a1a; margin-bottom: 15px; padding: 15px; border-radius: 8px;">
                         <h3 style="margin:0; color:#aaa;">${data.category || 'Mission'} (Completed)</h3>
-                        <p style="margin:10px 0; color: white;">${data.description}</p>
-                        <p style="font-size:0.8rem; color:#666;">Archived: ${data.completedAt ? data.completedAt.toDate().toLocaleString() : 'Date Unknown'}</p>
+                        <p style="margin:10px 0; color: white; font-size: 1.1rem;">${data.description}</p>
+                        <p style="font-size:0.8rem; color:#888; margin: 0;">
+                            Archived: ${data.completedAt ? data.completedAt.toDate().toLocaleString() : 'Date Unknown'}
+                        </p>
                     </div>
                 `;
             });
         })
         .catch((error) => {
             console.error("Error loading archive: ", error);
-            missionList.innerHTML = "<p>Error loading records.</p>";
+            missionList.innerHTML = "<p style='text-align:center; color:red;'>Error loading records.</p>";
         });
 }
-
-// 4. MOVE TO ARCHIVE FUNCTION
-function deleteMission(id) {
-    if (confirm("Mark this mission as complete and move to Archives?")) {
-        const missionRef = db.collection("missionRequests").doc(id);
-
-        missionRef.get().then((doc) => {
-            if (doc.exists) {
-                const missionData = doc.data();
-                missionData.completedAt = firebase.firestore.FieldValue.serverTimestamp();
-
-                db.collection("completedMissions").add(missionData)
-                    .then(() => {
-                        return missionRef.delete();
-                    })
-                    .then(() => {
-                        alert("Mission Accomplished and Archived!");
-                    })
-                    .catch((error) => {
-                        console.error("Archive Error: ", error);
-                        alert("Failed to archive mission.");
-                    });
-            }
-        });
-    }
 }
 
 // 5. NAVIGATION & INITIALIZATION
