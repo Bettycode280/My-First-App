@@ -129,21 +129,21 @@
         function checkPass() {
             const code = document.getElementById('pass-input').value;
             if (code === '1234') { 
-                document.getElementById('login-overlay').style.display = 'none';
-                document.getElementById('admin-ui').style.display = 'block';
-                if (typeof displayMissions === "function") {
-                    displayMissions();
-                }
-            } else {
-                alert("Unauthorized Access");
-            }
-        }
+            document.getElementById('login-overlay').style.display = 'none';
+    document.getElementById('admin-ui').style.display = 'block';
 
-        function showActive() {
-            document.getElementById('tab-active').className = 'toggle-btn btn-active-style';
-            document.getElementById('tab-archive').className = 'toggle-btn btn-inactive-style';
-            if (typeof displayMissions === "function") { displayMissions(); }
-        }
+    // THE FIX: Reset scroll position to top of page
+    window.scrollTo(0, 0); 
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+
+    if (typeof displayMissions === "function") {
+        displayMissions();
+    }
+  } else {
+    alert("Unauthorized Access");
+  }
+} 
 
         function showArchive() {
             document.getElementById('tab-archive').className = 'toggle-btn btn-active-style';
