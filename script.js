@@ -1,5 +1,5 @@
 // ==========================================
-// 1. FIREBASE CONFIGURATION & INITIALIZATION
+// 1. FIREBASE CONFIGURATION
 // ==========================================
 const firebaseConfig = {
   apiKey: "AIzaSyDhLq4p_W0ArYVXYHmOZbsuyyvLqWde6js",
@@ -11,31 +11,33 @@ const firebaseConfig = {
   measurementId: "G-RJMCECXXZP"
 };
 
-// Initialize Firebase App
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
-// Global Variables
 const db = firebase.firestore();
 let isInitialLoad = true;
+let activeListener = null; // Track the listener so we can stop/start it
 
 // ==========================================
-// 2. ACTIVE MISSIONS (Real-Time Listener)
+// 2. ACTIVE MISSIONS (With Fix for Switching)
 // ==========================================
 function displayMissions() {
     const missionList = document.getElementById('mission-list');
     const activeTab = document.getElementById('tab-active');
     const archiveTab = document.getElementById('tab-archive');
 
-    // UI State Management: Update Button Colors
+    // UI: Update Tab Styles
     if (activeTab) activeTab.classList.add('btn-active-style');
     if (archiveTab) archiveTab.classList.remove('btn-active-style');
 
-    // Listen to Firebase for live updates
-    db.collection("missionRequests").orderBy("timestamp", "desc").onSnapshot((querySnapshot) => {
+    // Clean up any old listener before starting a new one
+    if (activeListener) activeListener();
+
+    missionList.innerHTML = "<p style='text-align:center; padding:20px; color:#00d4ff;'>Connecting to Command...</p>";
+
+    activeListener = db.collection("missionRequests").orderBy("timestamp", "desc").onSnapshot((querySnapshot) => {
         
-        // Emergency Alert Logic (New Missions only)
         if (!isInitialLoad) {
             querySnapshot.docChanges().forEach((change) => {
                 if (change.type === "added") {
@@ -44,12 +46,12 @@ function displayMissions() {
             });
         }
 
-        // Only render if we are currently on the Active Tab
+        // Only update if we are still on the Active tab
         if (activeTab && activeTab.classList.contains('btn-active-style')) {
             missionList.innerHTML = ""; 
             
             if (querySnapshot.empty) {
-                missionList.innerHTML = "<p style='text-align:center; padding:40px; opacity:0.5;'>No active missions found.</p>";
+                missionList.innerHTML = "<p style='text-align:center; padding:40px; opacity:0.5;'>No active missions.</p>";
                 return;
             }
 
@@ -58,48 +60,49 @@ function displayMissions() {
                 const id = doc.id;
                 const priorityClass = data.priority ? data.priority.toLowerCase() : 'low';
 
-                // Address hypothesis: Display Received Time
                 missionList.innerHTML += `
-                    <div class="mission-card priority-${priorityClass}" style="margin-bottom: 15px; padding: 15px; border-radius: 10px; background: #1a1a1a;">
+                    <div class="mission-card priority-${priorityClass}" style="margin-bottom: 15px; padding: 15px; border-radius: 10px; background: #1a1a1a; border: 1px solid #333;">
                         <div style="display: flex; justify-content: space-between; align-items: start;">
                             <div style="width: 75%;">
                                 <span style="font-weight: bold; color: #00d4ff;">PRIORITY: ${data.priority || 'N/A'}</span>
-                                <p style="font-size: 1.15rem; margin: 10px 0; color: white;">${data.description}</p>
-                                <small style="opacity: 0.6; color: #aaa;">Received: ${data.timestamp ? data.timestamp.toDate().toLocaleString() : 'Just now'}</small>
+                                <p style="font-size: 1.1rem; margin: 10px 0; color: white;">${data.description}</p>
+                                <small style="opacity: 0.6; color: #888;">Received: ${data.timestamp ? data.timestamp.toDate().toLocaleString() : 'Recent'}</small>
                             </div>
-                            <button class="complete-btn" onclick="deleteMission('${id}')" 
-                                    style="background:#ff4b2b; color:white; border:none; padding:10px 15px; border-radius:5px; cursor:pointer; font-weight:bold;">
-                                Complete
-                            </button>
+                            <button onclick="deleteMission('${id}')" style="background:#ff4b2b; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer; font-weight:bold;">Complete</button>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             }); 
         }
         isInitialLoad = false;
     }, (error) => {
-        console.error("Firebase Sync Error: ", error);
+        console.error("Link Error: ", error);
+        missionList.innerHTML = "<p style='color:red; text-align:center;'>Link Broken.</p>";
     });
 }
 
 // ==========================================
-// 3. ARCHIVE DATA LOADER (Completed Missions)
+// 3. ARCHIVE DATA LOADER
 // ==========================================
 function showArchiveData() {
     const missionList = document.getElementById('mission-list');
     const activeTab = document.getElementById('tab-active');
     const archiveTab = document.getElementById('tab-archive');
 
-    // UI State Management: Update Button Colors
+    // UI: Update Tab Styles
     if (archiveTab) archiveTab.classList.add('btn-active-style');
     if (activeTab) activeTab.classList.remove('btn-active-style');
 
-    missionList.innerHTML = "<p style='text-align:center; padding:20px;'>Accessing Archives...</p>";
+    // Stop the active listener to save data/prevent conflicts
+    if (activeListener) {
+        activeListener();
+        activeListener = null;
+    }
+
+    missionList.innerHTML = "<p style='text-align:center; padding:20px; color:#aaa;'>Accessing Records...</p>";
 
     db.collection("completedMissions").orderBy("completedAt", "desc").get()
         .then((querySnapshot) => {
             missionList.innerHTML = "";
-            
             if (querySnapshot.empty) {
                 missionList.innerHTML = "<p style='text-align:center; padding:20px; opacity:0.5;'>The Archive is empty.</p>";
                 return;
@@ -107,86 +110,65 @@ function showArchiveData() {
 
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
-                
-                // Address hypothesis: Display Completed Time
                 missionList.innerHTML += `
                     <div class="mission-card" style="border-left: 5px solid #555; background: #111; margin-bottom: 15px; padding: 15px; border-radius: 10px;">
-                        <h3 style="margin:0; color:#00d4ff; font-size: 1rem;">${data.category || 'Mission'} (Completed)</h3>
+                        <h3 style="margin:0; color:#00d4ff; font-size: 0.9rem;">${data.category || 'Mission'} (Completed)</h3>
                         <p style="margin:10px 0; color: white; font-size: 1.1rem;">${data.description}</p>
-                        <p style="font-size:0.8rem; color:#666; margin: 0;">
-                            Archived: ${data.completedAt ? data.completedAt.toDate().toLocaleString() : 'Date Unknown'}
-                        </p>
-                    </div>
-                `;
+                        <p style="font-size:0.75rem; color:#666; margin: 0;">Archived: ${data.completedAt ? data.completedAt.toDate().toLocaleString() : 'N/A'}</p>
+                    </div>`;
             });
-        })
-        .catch((error) => {
-            console.error("Archive Error: ", error);
-            missionList.innerHTML = "<p style='color:red;'>Error loading data.</p>";
         });
 }
 
 // ==========================================
-// 4. MISSION COMPLETION LOGIC (Move to Archive)
+// 4. ARCHIVE ACTION (The "Complete" Function)
 // ==========================================
 function deleteMission(missionId) {
-    if (!confirm("Mark this mission as accomplished?")) return;
-
+    if (!confirm("Mark as accomplished?")) return;
     const missionRef = db.collection("missionRequests").doc(missionId);
 
     missionRef.get().then((doc) => {
         if (doc.exists) {
-            const missionData = doc.data();
-            
-            // Add to completedMissions
             db.collection("completedMissions").add({
-                ...missionData,
+                ...doc.data(),
                 completedAt: firebase.firestore.FieldValue.serverTimestamp()
-            })
-            .then(() => {
-                // Delete from active list
+            }).then(() => {
                 return missionRef.delete();
-            })
-            .then(() => {
-                alert("Mission Accomplished and Archived!");
+            }).then(() => {
+                alert("Mission Archived!");
             });
         }
-    }).catch((error) => {
-        console.error("Error archiving mission: ", error);
     });
 }
 
 // ==========================================
-// 5. SECURITY & LOGIN UI
+// 5. LOGIN & UI INITIALIZATION
 // ==========================================
 function checkPass() {
     const code = document.getElementById('pass-input').value;
-    
     if (code === '1234') { 
         document.getElementById('login-overlay').style.display = 'none';
         document.getElementById('admin-ui').style.display = 'block';
-        
-        // UI Stability: Force page to stay stagnant at top
         window.scrollTo(0, 0); 
-        
-        // Initialize List
         displayMissions();
     } else {
         alert("Unauthorized Access");
     }
 }
 
-// ==========================================
-// 6. INITIALIZATION & SCROLL FIX
-// ==========================================
 window.onload = () => { 
-    console.log("GloryWheels Admin Protocol Active");
+    // FIXED: Ensure Header is Visible and List is Stagnant
+    const adminUI = document.getElementById('admin-ui');
+    const missionList = document.getElementById('mission-list');
     
-    const listContainer = document.getElementById('mission-list');
-    if (listContainer) {
-        // Fix: Make list scrollable while keeping Header stagnant
-        listContainer.style.height = "calc(100vh - 220px)";
-        listContainer.style.overflowY = "auto";
-        listContainer.style.paddingBottom = "50px";
+    if (adminUI) {
+        adminUI.style.position = "relative";
+        adminUI.style.zIndex = "10";
+    }
+
+    if (missionList) {
+        missionList.style.height = "70vh"; // Fixed height
+        missionList.style.overflowY = "auto"; // Scrollable list
+        missionList.style.marginTop = "20px";
     }
 };
